@@ -1,0 +1,17 @@
+# Java
+/target/
+*.jar
+*.class
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# NetBeans
+/nbproject/
+/nbactions.xml
+/nb-configuration.xml
+
+# Logs
+*.log
