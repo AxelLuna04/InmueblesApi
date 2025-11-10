@@ -28,6 +28,10 @@ public class AuthService {
     if (!encoder.matches(contraseniaPlano, u.getContrasenia())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
     }
+    
+    if (u.getFechaVerificacion() == null) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cuenta no verificada. Revisa tu email.");
+    }
 
     String access = jwt.newAccess(u.getCorreo(), u.getRol());
     String refresh = jwt.newRefresh(u.getCorreo());
@@ -37,10 +41,8 @@ public class AuthService {
   public LoginResponse refresh(String refreshToken) {
     var authOpt = jwt.toAuth(refreshToken);
     if (authOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh inválido");
-    // Validar que sea de tipo refresh
-    // (simplificado: podrías parsear claims y verificar "type" == "refresh")
     String correo = (String) authOpt.get().getPrincipal();
-    String access = jwt.newAccess(correo, "USER"); // si quieres, reobtén el rol desde BD
+    String access = jwt.newAccess(correo, "USER");
     return new LoginResponse(access, refreshToken, "USER");
   }
 }

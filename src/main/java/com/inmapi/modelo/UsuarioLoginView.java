@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import org.hibernate.annotations.Immutable;
+import java.time.LocalDateTime;
 
 @Entity
 @Immutable
@@ -12,7 +13,7 @@ import org.hibernate.annotations.Immutable;
 @Getter
 public class UsuarioLoginView {
 
-    @Id // JPA requiere un ID
+    @Id
     private Integer id;
 
     private String correo;
@@ -20,4 +21,6 @@ public class UsuarioLoginView {
     private String contrasenia;
     
     private String rol;
+    
+    private LocalDateTime fechaVerificacion;
 }

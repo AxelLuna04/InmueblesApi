@@ -7,6 +7,7 @@ package com.inmapi.modelo;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Vendedor", uniqueConstraints = {
@@ -40,4 +41,13 @@ public class Vendedor {
 
     @OneToMany(mappedBy = "vendedor")
     private List<Publicacion> publicaciones = new ArrayList<>();
+    
+    @Column(name = "tokenVerificacion", length = 100)
+    private String tokenVerificacion;
+
+    @Column(name = "fechaVerificacion")
+    private LocalDateTime fechaVerificacion;
+
+    @Column(name = "expiracionToken")
+    private LocalDateTime expiracionToken;
 }

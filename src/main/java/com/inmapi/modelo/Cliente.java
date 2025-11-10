@@ -6,6 +6,7 @@ package com.inmapi.modelo;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
 
 @Entity
@@ -50,4 +51,13 @@ public class Cliente {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idFotoPerfil", nullable = false, foreignKey = @ForeignKey(name = "FK_Cliente_FotoPerfil"))
     private FotoPerfil fotoPerfil;
+    
+    @Column(name = "tokenVerificacion", length = 100)
+    private String tokenVerificacion;
+
+    @Column(name = "fechaVerificacion")
+    private LocalDateTime fechaVerificacion;
+
+    @Column(name = "expiracionToken")
+    private LocalDateTime expiracionToken;
 }
