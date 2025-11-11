@@ -1,0 +1,2 @@
+ALTER TABLE dbo.Cliente 
+ALTER COLUMN idOcupacion INT NULL;

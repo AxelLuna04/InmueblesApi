@@ -45,7 +45,7 @@ public class Cliente {
     private String numeroMiembrosFamilia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idOcupacion", nullable = false, foreignKey = @ForeignKey(name = "FK_Cliente_Ocupacion"))
+    @JoinColumn(name = "idOcupacion", nullable = true, foreignKey = @ForeignKey(name = "FK_Cliente_Ocupacion"))
     private Ocupacion ocupacion;
 
     @ManyToOne(fetch = FetchType.LAZY)

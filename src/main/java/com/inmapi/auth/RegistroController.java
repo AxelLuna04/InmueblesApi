@@ -1,0 +1,37 @@
+package com.inmapi.auth;
+
+import com.inmapi.dto.RegistroRequest;
+import com.inmapi.dto.RegistroResponse;
+import com.inmapi.modelo.FotoPerfil;
+import com.inmapi.service.FotoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
+public class RegistroController {
+
+  private final RegistroService registro;
+  private final FotoService fotos;
+
+  @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<RegistroResponse> register(
+      @RequestPart("datos") @Valid RegistroRequest datos,
+      @RequestPart("foto") MultipartFile foto) {
+
+    FotoPerfil fp = fotos.guardar(foto);
+    var res = registro.registrar(datos, fp);
+    return ResponseEntity.status(HttpStatus.CREATED).body(res);
+  }
+
+  @GetMapping("/verify")
+  public ResponseEntity<?> verify(@RequestParam("token") String token) {
+    String msg = registro.verificar(token);
+    return ResponseEntity.ok().body(java.util.Map.of("mensaje", msg));
+  }
+}
+

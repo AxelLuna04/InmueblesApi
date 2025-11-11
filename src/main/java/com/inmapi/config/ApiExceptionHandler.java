@@ -30,6 +30,7 @@ public class ApiExceptionHandler {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public Map<String, Object> other(Exception ex) {
+    ex.printStackTrace();
     return Map.of("status", 500, "error", "ServerError");
   }
 }

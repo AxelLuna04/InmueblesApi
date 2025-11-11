@@ -19,7 +19,7 @@ public class FotoPerfil {
     @Column(name = "idFotoPerfil")
     private Integer id;
 
-    @Column(name = "ruta", length = 100, nullable = false)
+    @Column(name = "ruta", length = 255, nullable = false)
     private String ruta;
 }
 
