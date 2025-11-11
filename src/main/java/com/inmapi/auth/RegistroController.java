@@ -15,23 +15,29 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class RegistroController {
 
-  private final RegistroService registro;
-  private final FotoService fotos;
+    private final RegistroService registro;
+    private final FotoService fotos;
 
-  @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<RegistroResponse> register(
-      @RequestPart("datos") @Valid RegistroRequest datos,
-      @RequestPart("foto") MultipartFile foto) {
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RegistroResponse> register(
+            @RequestPart("datos") @Valid RegistroRequest datos,
+            @RequestPart("foto") MultipartFile foto) {
 
-    FotoPerfil fp = fotos.guardar(foto);
-    var res = registro.registrar(datos, fp);
-    return ResponseEntity.status(HttpStatus.CREATED).body(res);
-  }
+        FotoPerfil fp = fotos.guardar(foto);
+        var res = registro.registrar(datos, fp);
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
 
-  @GetMapping("/verify")
-  public ResponseEntity<?> verify(@RequestParam("token") String token) {
-    String msg = registro.verificar(token);
-    return ResponseEntity.ok().body(java.util.Map.of("mensaje", msg));
-  }
+    @GetMapping("/verify")
+    public ResponseEntity<?> verify(@RequestParam("token") String token) {
+        String msg = registro.verificar(token);
+        return ResponseEntity.ok().body(java.util.Map.of("mensaje", msg));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resend(@RequestParam("correo") String correo) {
+        registro.reenviarVerificacion(correo);
+        return ResponseEntity.ok().body(java.util.Map.of("mensaje", "Si el correo existe y no está verificado, se envió un nuevo enlace."));
+    }
 }
 

@@ -8,5 +8,6 @@ import java.util.Optional;
 public interface VendedorRepository extends JpaRepository<Vendedor, Integer> {
   boolean existsByCorreo(String correo);
   Optional<Vendedor> findByTokenVerificacion(String token);
+  Optional<Vendedor> findByCorreo(String correo);
 }
 
