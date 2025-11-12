@@ -30,5 +30,21 @@ public class EmailService {
       throw new RuntimeException("No se pudo enviar el correo", e);
     }
   }
+  
+  public void enviar(String para, String asunto, String htmlBody, String txtBody) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8"); 
+
+            helper.setFrom(from);
+            helper.setTo(para);
+            helper.setSubject(asunto);
+            helper.setText(txtBody, htmlBody);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo enviar el correo", e);
+        }
+    }
 }
 

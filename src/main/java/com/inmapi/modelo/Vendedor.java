@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.inmapi.modelo;
 
 import jakarta.persistence.*;
@@ -10,9 +6,15 @@ import java.util.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Vendedor", uniqueConstraints = {
-    @UniqueConstraint(name = "IX_Vendedor_Correo", columnNames = "correo")
-})
+// ----- AQUÍ SE AÑADE LA INFO DEL NUEVO ÍNDICE -----
+@Table(name = "Vendedor", 
+    uniqueConstraints = {
+        @UniqueConstraint(name = "IX_Vendedor_Correo", columnNames = "correo")
+    },
+    indexes = {
+        @Index(name = "IX_Vendedor_EmailCambioToken", columnList = "emailCambioToken") // <-- AÑADIDO
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,4 +52,13 @@ public class Vendedor {
 
     @Column(name = "expiracionToken")
     private LocalDateTime expiracionToken;
+
+    @Column(name = "emailCambioToken", length = 100)
+    private String emailCambioToken;
+
+    @Column(name = "emailNuevo", length = 50)
+    private String emailNuevo;
+
+    @Column(name = "emailCambioExp")
+    private LocalDateTime emailCambioExp;
 }

@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -61,7 +61,9 @@ public class RegistroService {
 
                 String link = linkBuilder.buildVerifyUrl(token);
                 String html = templates.verificacion(saved.getNombreCompleto(), link);
-                email.enviarHtml(saved.getCorreo(), "Verifica tu cuenta", html);
+                String txt = templates.verificacionTxt(saved.getNombreCompleto(), link);
+
+                email.enviar(saved.getCorreo(), "Verifica tu cuenta", html, txt);
 
                 return new RegistroResponse("Registro creado. Verifica tu correo.", "CLIENTE", saved.getId(), false);
             }
@@ -80,7 +82,8 @@ public class RegistroService {
 
                 String link = linkBuilder.buildVerifyUrl(token);
                 String html = templates.verificacion(saved.getNombreCompleto(), link);
-                email.enviarHtml(saved.getCorreo(), "Verifica tu cuenta", html);
+                String txt = templates.verificacionTxt(saved.getNombreCompleto(), link);
+                email.enviar(saved.getCorreo(), "Verifica tu cuenta", html, txt);
 
                 return new RegistroResponse("Registro creado. Verifica tu correo.", "VENDEDOR", saved.getId(), false);
             }
@@ -129,9 +132,11 @@ public class RegistroService {
                 c.setTokenVerificacion(token);
                 c.setExpiracionToken(LocalDateTime.now().plusHours(24));
                 clientes.save(c);
+
                 String link = linkBuilder.buildVerifyUrl(token);
                 String html = templates.verificacion(c.getNombreCompleto(), link);
-                email.enviarHtml(c.getCorreo(), "Verifica tu cuenta", html);
+                String txt = templates.verificacionTxt(c.getNombreCompleto(), link);
+                email.enviar(c.getCorreo(), "Verifica tu cuenta", html, txt);
             }
             return;
         }
@@ -145,9 +150,11 @@ public class RegistroService {
                 v.setTokenVerificacion(token);
                 v.setExpiracionToken(LocalDateTime.now().plusHours(24));
                 vendedores.save(v);
+
                 String link = linkBuilder.buildVerifyUrl(token);
                 String html = templates.verificacion(v.getNombreCompleto(), link);
-                email.enviarHtml(v.getCorreo(), "Verifica tu cuenta", html);
+                String txt = templates.verificacionTxt(v.getNombreCompleto(), link);
+                email.enviar(v.getCorreo(), "Verifica tu cuenta", html, txt);
             }
         }
 

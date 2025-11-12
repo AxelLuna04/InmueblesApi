@@ -9,5 +9,6 @@ public interface VendedorRepository extends JpaRepository<Vendedor, Integer> {
   boolean existsByCorreo(String correo);
   Optional<Vendedor> findByTokenVerificacion(String token);
   Optional<Vendedor> findByCorreo(String correo);
+  Optional<Vendedor> findByEmailCambioToken(String token);
 }
 
