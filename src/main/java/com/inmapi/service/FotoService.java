@@ -45,6 +45,23 @@ public class FotoService {
             throw new RuntimeException("No se pudo guardar la foto", e);
         }
     }
+    
+    public void eliminarFoto(FotoPerfil foto) {
+        if (foto == null || foto.getRuta() == null || foto.getRuta().isBlank()) {
+            return;
+        }
+
+        try {
+            Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), foto.getRuta());
+            Files.deleteIfExists(rutaAbsoluta);
+            
+            fotos.delete(foto);
+
+        } catch (Exception e) {
+            System.err.println("No se pudo eliminar el archivo de foto: " + foto.getRuta());
+            e.printStackTrace();
+        }
+    }
 
     private String obtenerExtension(String nombre) {
         if (nombre == null) return "";

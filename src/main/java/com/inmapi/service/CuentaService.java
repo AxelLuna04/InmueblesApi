@@ -3,10 +3,12 @@ package com.inmapi.service;
 import com.inmapi.dto.ChangeEmailRequest;
 import com.inmapi.dto.ChangePasswordRequest;
 import com.inmapi.modelo.Cliente;
+import com.inmapi.modelo.FotoPerfil;
 import com.inmapi.modelo.Vendedor;
 import com.inmapi.repository.ClienteRepository;
 import com.inmapi.repository.UsuarioLoginRepository;
 import com.inmapi.repository.VendedorRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -27,6 +29,7 @@ public class CuentaService {
     private final VendedorRepository vendedores;
     private final UsuarioLoginRepository loginView;
     private final PasswordEncoder encoder;
+    private final FotoService fotoService;
 
     private final EmailService email;
     private final EmailTemplates templates;
@@ -193,6 +196,62 @@ public class CuentaService {
         }
 
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token no válido");
+    }
+    
+    @Transactional
+    public void eliminarCuenta(String contraseniaActual) {
+        String correo = emailActual();
+
+        if (esCliente()) {
+            Cliente c = clientes.findByCorreo(correo)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
+            if (!encoder.matches(contraseniaActual, c.getContrasenia()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña actual incorrecta");
+
+            String nombre = c.getNombreCompleto();
+            String correoDestino = c.getCorreo();
+            
+            FotoPerfil fotoParaBorrar = c.getFotoPerfil();
+            clientes.delete(c);
+
+            if (fotoParaBorrar != null) {
+                fotoService.eliminarFoto(fotoParaBorrar);
+            }
+
+            email.enviar(
+                    correoDestino,
+                    "Tu cuenta ha sido eliminada",
+                    templates.avisoEliminacionCuenta(nombre, "Cliente"),
+                    templates.avisoEliminacionCuentaTxt(nombre, "Cliente")
+            );
+            return;
+        }
+
+        if (esVendedor()) {
+            Vendedor v = vendedores.findByCorreo(correo)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor no encontrado"));
+            if (!encoder.matches(contraseniaActual, v.getContrasenia()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña actual incorrecta");
+
+            String nombre = v.getNombreCompleto();
+            String correoDestino = v.getCorreo();
+            
+            FotoPerfil fotoParaBorrar = v.getFotoPerfil();
+            vendedores.delete(v);
+
+            if (fotoParaBorrar != null) {
+                fotoService.eliminarFoto(fotoParaBorrar);
+            }
+            email.enviar(
+                    correoDestino,
+                    "Tu cuenta ha sido eliminada",
+                    templates.avisoEliminacionCuenta(nombre, "Vendedor"),
+                    templates.avisoEliminacionCuentaTxt(nombre, "Vendedor")
+            );
+            return;
+        }
+
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Rol no permitido");
     }
 }
 

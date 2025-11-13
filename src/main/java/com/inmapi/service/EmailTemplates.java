@@ -21,7 +21,7 @@ public class EmailTemplates {
       </div>
       """.formatted(nombre == null ? "" : nombre, link, link, link);
     }
-    
+
     public String verificacionTxt(String nombre, String link) {
         return """
           Hola %s,
@@ -67,6 +67,23 @@ public class EmailTemplates {
 
     Si no fuiste tú, ignora este mensaje.
   """.formatted(nombre == null ? "" : nombre, nuevoCorreo, link);
+    }
+
+    public String avisoEliminacionCuenta(String nombre, String tipo) {
+        return """
+    <p>Hola %s,</p>
+    <p>Tu cuenta de %s ha sido eliminada junto con su información asociada.</p>
+    <p>Si no fuiste tú, por favor contáctanos de inmediato.</p>
+  """.formatted(nombre == null ? "" : nombre, tipo);
+    }
+
+    public String avisoEliminacionCuentaTxt(String nombre, String tipo) {
+        return """
+    Hola %s,
+
+    Tu cuenta de %s ha sido eliminada junto con su información asociada.
+    Si no fuiste tú, por favor contáctanos de inmediato.
+  """.formatted(nombre == null ? "" : nombre, tipo);
     }
 
 }
