@@ -215,7 +215,7 @@ public class CuentaService {
             clientes.delete(c);
 
             if (fotoParaBorrar != null) {
-                fotoService.eliminarFoto(fotoParaBorrar);
+                fotoService.eliminarFotoPerfil(fotoParaBorrar);
             }
 
             email.enviar(
@@ -240,7 +240,7 @@ public class CuentaService {
             vendedores.delete(v);
 
             if (fotoParaBorrar != null) {
-                fotoService.eliminarFoto(fotoParaBorrar);
+                fotoService.eliminarFotoPerfil(fotoParaBorrar);
             }
             email.enviar(
                     correoDestino,

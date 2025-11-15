@@ -25,4 +25,7 @@ public class FotoPublicacion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idPublicacion", nullable = false, foreignKey = @ForeignKey(name = "FK_FotoPublicacion_Publicacion"))
     private Publicacion publicacion;
+    
+    @Column(name = "esPortada", nullable = false)
+    private boolean esPortada;
 }

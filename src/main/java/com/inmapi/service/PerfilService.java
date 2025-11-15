@@ -148,14 +148,14 @@ public class PerfilService {
         if (esRol("CLIENTE")) {
             var c = clientes.findByCorreo(correo)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
-            FotoPerfil nueva = fotoService.guardar(foto);
+            FotoPerfil nueva = fotoService.guardarFotoPerfil(foto);
             c.setFotoPerfil(nueva);
             clientes.save(c);
             return toResponse(c);
         } else if (esRol("VENDEDOR")) {
             var v = vendedores.findByCorreo(correo)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor no encontrado"));
-            FotoPerfil nueva = fotoService.guardar(foto);
+            FotoPerfil nueva = fotoService.guardarFotoPerfil(foto);
             v.setFotoPerfil(nueva);
             vendedores.save(v);
             return toResponse(v);

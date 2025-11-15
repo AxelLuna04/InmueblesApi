@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "Publicacion")
@@ -56,4 +57,11 @@ public class Publicacion {
 
     @OneToMany(mappedBy = "publicacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CaracteristicaSeleccionada> caracteristicas = new ArrayList<>();
+
+    @Column(name = "estado", length = 20, nullable = false)
+    private String estado = "PENDIENTE";
+
+    @Column(name = "creadoEn", nullable = false, updatable = false)
+    @CreationTimestamp
+    private java.time.LocalDateTime creadoEn;
 }

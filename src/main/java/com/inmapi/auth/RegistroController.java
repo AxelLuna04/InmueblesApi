@@ -25,7 +25,7 @@ public class RegistroController {
             @RequestPart("datos") @Valid RegistroRequest datos,
             @RequestPart("foto") MultipartFile foto) {
 
-        FotoPerfil fp = fotos.guardar(foto);
+        FotoPerfil fp = fotos.guardarFotoPerfil(foto);
         var res = registro.registrar(datos, fp);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
