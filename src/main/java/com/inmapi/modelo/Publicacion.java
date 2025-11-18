@@ -31,6 +31,9 @@ public class Publicacion {
 
     @Column(name = "descripcion", length = 200, nullable = false)
     private String descripcion;
+    
+    @Column(name = "tipoOperacion", length = 10, nullable = false)
+    private String tipoOperacion;
 
     @Column(name = "precio", nullable = false)
     private Double precio;

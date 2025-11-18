@@ -86,6 +86,7 @@ public class PublicacionService {
         p.setNumeroExcusados(dto.getNumeroExcusados());
         p.setTipoInmueble(tipo);
         p.setDireccion(direccion);
+        p.setTipoOperacion(dto.getTipoOperacion());
 
         publicaciones.save(p);
 

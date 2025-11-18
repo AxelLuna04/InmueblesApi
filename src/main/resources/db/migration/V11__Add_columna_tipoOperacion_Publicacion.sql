@@ -1,0 +1,1 @@
+ALTER TABLE dbo.Publicacion ADD tipoOperacion VARCHAR(10) NOT NULL;

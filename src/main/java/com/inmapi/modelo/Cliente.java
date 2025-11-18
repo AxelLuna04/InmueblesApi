@@ -1,4 +1,4 @@
-package com.inmapi.modelo;
+ package com.inmapi.modelo;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;

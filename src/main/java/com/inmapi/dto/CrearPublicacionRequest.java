@@ -10,6 +10,10 @@ public class CrearPublicacionRequest {
   @NotBlank @Size(max = 50)
   private String titulo;
   
+  @NotBlank
+  @Pattern(regexp = "RENTA|VENTA")
+  private String tipoOperacion;
+  
   @NotBlank @Size(max = 200)
   private String descripcion;
   
