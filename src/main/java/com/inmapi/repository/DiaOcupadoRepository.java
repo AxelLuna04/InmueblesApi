@@ -4,13 +4,13 @@
  */
 package com.inmapi.repository;
 
-import com.inmapi.modelo.Disponibilidad;
+import com.inmapi.modelo.DiaOcupado;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.time.LocalDate;
 
-public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, Integer> {
+public interface DiaOcupadoRepository extends JpaRepository<DiaOcupado, Integer> {
 
-    Optional<Disponibilidad> findByVendedorId(Integer idVendedor);   
+    boolean existsByVendedorIdAndFecha(Integer idVendedor, LocalDate fecha);
 }
 
