@@ -47,6 +47,14 @@ public class FotoService {
         eliminarArchivo(foto.getRuta());
         fotos.delete(foto);
     }
+    
+    public void eliminarFotoPublicacion(FotoPublicacion foto) {
+        if (foto == null) {
+            return;
+        }
+        eliminarArchivo(foto.getRuta());
+        fotoPublicacionRepository.delete(foto);
+    }
 
     public FotoPublicacion guardarFotoPublicacion(MultipartFile file, Publicacion p, boolean esPortada) {
         try {

@@ -6,6 +6,7 @@ import com.inmapi.dto.CrearPublicacionResponse;
 import com.inmapi.dto.PublicacionCard;
 import com.inmapi.dto.PublicacionDetalle;
 import com.inmapi.dto.PublicacionFiltro;
+import com.inmapi.dto.UpdatePublicacionRequest;
 import com.inmapi.service.PublicacionQueryService;
 import com.inmapi.service.PublicacionService;
 import jakarta.validation.Valid;
@@ -32,6 +33,19 @@ public class PublicacionController {
         var res = publicaciones.crear(datos, java.util.Arrays.asList(fotos));
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
+    
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CrearPublicacionResponse> actualizar(
+        @PathVariable Integer id,
+        @RequestPart("datos") UpdatePublicacionRequest datos,
+        @RequestPart(value = "fotosNuevas", required = false) MultipartFile[] fotosNuevas
+    ) {
+      var res = publicaciones.actualizar(id,
+          datos,
+          fotosNuevas == null ? java.util.List.of() : java.util.Arrays.asList(fotosNuevas));
+      return ResponseEntity.ok(res);
+    }
+
 
     // Esto es por si el metodo de arriba falla debido a un bug que se tiene al aplicar @Valid a un @RequestPart
     /*public ResponseEntity<CrearPublicacionResponse> crear(
@@ -71,13 +85,11 @@ public class PublicacionController {
         return ResponseEntity.ok(service.listar(f, page, size, sort));
     }
 
-    // Detalle
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDetalle> detalle(@PathVariable Integer id) {
         return ResponseEntity.ok(service.detalle(id));
     }
 
-    // Para ti (requiere CLIENTE autenticado)
     @GetMapping("/para-ti")
     public ResponseEntity<Page<PublicacionCard>> paraTi(
             @RequestParam(defaultValue = "0") int page,
@@ -85,5 +97,8 @@ public class PublicacionController {
     ) {
         return ResponseEntity.ok(service.paraTi(page, size));
     }
+    
+    
 
 }
+

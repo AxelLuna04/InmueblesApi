@@ -12,7 +12,7 @@ public class PublicacionDetalle {
   private Integer habitaciones;
   private Integer banosCompletos;
   private Integer excusados;
-
+  private String tipoOperacion;
   private String tipoInmueble;
   private DireccionDTO direccion;
   private List<String> fotos;

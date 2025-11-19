@@ -13,5 +13,6 @@ public class PublicacionCard {
   private Integer excusados;
   private String portada;
   private String tipoInmueble;
+  private String tipoOperacion;
 }
 

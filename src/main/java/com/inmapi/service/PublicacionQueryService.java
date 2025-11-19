@@ -169,7 +169,8 @@ public class PublicacionQueryService {
             p.getNumeroBanosCompletos(),
             p.getNumeroExcusados(),
             portada,
-            tipoTxt
+            tipoTxt,
+            p.getTipoOperacion()
         );
     }
     
@@ -208,6 +209,7 @@ public class PublicacionQueryService {
             p.getNumeroHabitaciones(),
             p.getNumeroBanosCompletos(),
             p.getNumeroExcusados(),
+            p.getTipoOperacion(),
             tipoTxt,
             d,
             fotosRutas,
