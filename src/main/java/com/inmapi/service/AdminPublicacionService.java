@@ -26,6 +26,7 @@ public class AdminPublicacionService {
     private final FotoPublicacionRepository fotos;
     private final EmailService email;
     private final EmailTemplates templates;
+    private final MediaUrlBuilder urlBuilder;
 
     private boolean esAdmin() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -46,11 +47,12 @@ public class AdminPublicacionService {
                 .and(PublicacionSpecs.texto(f.getQ()));
 
         return publicaciones.findAll(spec, pageable).map(p -> {
-            var portada = fotos.findFirstByPublicacionIdAndEsPortadaTrue(p.getId())
+            var rutaDisco = fotos.findFirstByPublicacionIdAndEsPortadaTrue(p.getId())
                     .map(FotoPublicacion::getRuta).orElse(null);
+            String urlWeb = urlBuilder.construirUrl(rutaDisco);
             var tipo = p.getTipoInmueble() != null ? p.getTipoInmueble().getTipo() : null;
             var dir = p.getDireccion() != null ? p.getDireccion().getFormattedAddress() : null;
-            return new ModeracionCard(p.getId(), p.getTitulo(), p.getPrecio(), tipo, dir, portada, p.getEstado(), p.getCreadoEn());
+            return new ModeracionCard(p.getId(), p.getTitulo(), p.getPrecio(), tipo, dir, urlWeb, p.getEstado(), p.getCreadoEn());
         });
     }
 
@@ -62,7 +64,7 @@ public class AdminPublicacionService {
         var p = publicaciones.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
-        var fotosList = p.getFotos().stream().map(FotoPublicacion::getRuta).collect(Collectors.toList());
+        var fotosList = p.getFotos().stream().map(FotoPublicacion::getRuta).map(urlBuilder::construirUrl).toList();
         var carNombres = p.getCaracteristicas().stream()
                 .map(cs -> cs.getCaracteristica().getCaracteristica()).toList();
 

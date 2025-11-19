@@ -23,6 +23,7 @@ public class PublicacionQueryService {
     private final PublicacionRepository publicaciones;
     private final FotoPublicacionRepository fotos;
     private final ClienteRepository clientes;
+    private final MediaUrlBuilder urlBuilder;
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -155,8 +156,9 @@ public class PublicacionQueryService {
     }
 
     private PublicacionCard toCard(Publicacion p) {
-        String portada = fotos.findFirstByPublicacionIdAndEsPortadaTrue(p.getId())
+        String rutaDisco = fotos.findFirstByPublicacionIdAndEsPortadaTrue(p.getId())
             .map(FotoPublicacion::getRuta).orElse(null);
+        String urlWeb = urlBuilder.construirUrl(rutaDisco);
         String dirCorta = p.getDireccion() != null ? p.getDireccion().getFormattedAddress() : null;
         String tipoTxt = p.getTipoInmueble() != null ? p.getTipoInmueble().getTipo() : null;
         
@@ -168,7 +170,7 @@ public class PublicacionQueryService {
             p.getNumeroHabitaciones(),
             p.getNumeroBanosCompletos(),
             p.getNumeroExcusados(),
-            portada,
+            urlWeb,
             tipoTxt,
             p.getTipoOperacion()
         );
@@ -180,7 +182,7 @@ public class PublicacionQueryService {
         if (!"APROBADA".equals(p.getEstado())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No disponible");
         }
-        var fotosRutas = p.getFotos().stream().map(FotoPublicacion::getRuta).toList();
+        var fotosRutas = p.getFotos().stream().map(FotoPublicacion::getRuta).map(urlBuilder::construirUrl).toList();
         var carNombres = p.getCaracteristicas().stream().map(cs -> cs.getCaracteristica().getCaracteristica()).toList();
         var tipoTxt = p.getTipoInmueble() != null ? p.getTipoInmueble().getTipo() : null;
     

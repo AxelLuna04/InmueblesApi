@@ -22,6 +22,7 @@ public class PerfilService {
     private final OcupacionRepository ocupaciones;
     private final FotoPerfilRepository fotos;
     private final FotoService fotoService;
+    private final MediaUrlBuilder urlBuilder;
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -40,6 +41,7 @@ public class PerfilService {
     }
 
     private PerfilResponse toResponse(Cliente c) {
+
         return new PerfilResponse(
                 "CLIENTE",
                 c.getId(),
@@ -51,7 +53,7 @@ public class PerfilService {
                 c.getOcupacion() == null ? null : c.getOcupacion().getId(),
                 null,
                 c.getFotoPerfil() == null ? null : c.getFotoPerfil().getId(),
-                c.getFotoPerfil() == null ? null : c.getFotoPerfil().getRuta()
+                c.getFotoPerfil() == null ? null : urlBuilder.construirUrl(c.getFotoPerfil().getRuta())
         );
     }
 
@@ -67,7 +69,7 @@ public class PerfilService {
                 null,
                 v.getTelefono(),
                 v.getFotoPerfil() == null ? null : v.getFotoPerfil().getId(),
-                v.getFotoPerfil() == null ? null : v.getFotoPerfil().getRuta()
+                v.getFotoPerfil() == null ? null : urlBuilder.construirUrl(v.getFotoPerfil().getRuta())
         );
     }
 

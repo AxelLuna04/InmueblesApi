@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 public class MisPublicacionesService {
 
   private final PublicacionRepository publicaciones;
+  private final MediaUrlBuilder urlBuilder;
 
   private String emailActual() {
     Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -47,6 +48,7 @@ public class MisPublicacionesService {
       var portada = p.getFotos().stream()
           .filter(FotoPublicacion::isEsPortada)
           .map(FotoPublicacion::getRuta)
+          .map(urlBuilder::construirUrl)
           .findFirst().orElse(null);
       var tipoTxt = p.getTipoInmueble() != null ? p.getTipoInmueble().getTipo() : null;
       return new MisPubCard(
@@ -85,7 +87,8 @@ public class MisPublicacionesService {
 
     var fotos = p.getFotos().stream()
         .map(FotoPublicacion::getRuta)
-        .collect(Collectors.toList());
+        .map(urlBuilder::construirUrl)
+        .toList();
 
     var caracts = p.getCaracteristicas().stream()
         .map(cs -> cs.getCaracteristica().getCaracteristica())
