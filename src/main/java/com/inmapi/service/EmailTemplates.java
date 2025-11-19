@@ -86,5 +86,30 @@ public class EmailTemplates {
   """.formatted(nombre == null ? "" : nombre, tipo);
     }
 
+    public String publicacionAprobada(String nombre, String titulo) {
+        return """
+    <p>Hola %s,</p>
+    <p>Tu publicación <b>%s</b> fue <b>aprobada</b> y ahora es visible.</p>
+  """.formatted(nombre == null ? "" : nombre, titulo);
+    }
+
+    public String publicacionAprobadaTxt(String nombre, String titulo) {
+        return "Hola %s,\n\nTu publicación '%s' fue aprobada y ahora es visible."
+                .formatted(nombre == null ? "" : nombre, titulo);
+    }
+
+    public String publicacionRechazada(String nombre, String titulo, String motivo) {
+        return """
+    <p>Hola %s,</p>
+    <p>Tu publicación <b>%s</b> fue <b>rechazada</b>.</p>
+    <p>Motivo: %s</p>
+  """.formatted(nombre == null ? "" : nombre, titulo, motivo);
+    }
+
+    public String publicacionRechazadaTxt(String nombre, String titulo, String motivo) {
+        return "Hola %s,\n\nTu publicación '%s' fue rechazada.\nMotivo: %s"
+                .formatted(nombre == null ? "" : nombre, titulo, motivo);
+    }
+
 }
 

@@ -67,4 +67,7 @@ public class Publicacion {
     @Column(name = "creadoEn", nullable = false, updatable = false)
     @CreationTimestamp
     private java.time.LocalDateTime creadoEn;
+    
+    @Column(name = "motivoRechazo", length = 200)
+    private String motivoRechazo;
 }

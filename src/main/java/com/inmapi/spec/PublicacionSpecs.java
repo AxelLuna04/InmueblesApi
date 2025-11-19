@@ -15,6 +15,11 @@ public class PublicacionSpecs {
     public static Specification<Publicacion> estadoAprobada() {
         return (r, q, cb) -> cb.equal(r.get("estado"), "APROBADA");
     }
+    
+    public static Specification<Publicacion> porEstado(String estado) {
+        if (estado == null || estado.isBlank()) return null;
+        return (r, q, cb) -> cb.equal(r.get("estado"), estado);
+      }
 
     public static Specification<Publicacion> tipo(Integer idTipo) {
         return idTipo == null ? null : (r, q, cb) -> cb.equal(r.get("tipoInmueble").get("id"), idTipo);
