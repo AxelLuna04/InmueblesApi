@@ -5,6 +5,7 @@
 package com.inmapi.repository;
 
 import com.inmapi.modelo.AccesoVendedor;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -12,4 +13,6 @@ import java.util.Optional;
 public interface AccesoVendedorRepository extends JpaRepository<AccesoVendedor, Integer> {
 
     Optional<AccesoVendedor> findByClienteIdAndPublicacionId(Integer idCliente, Integer idPublicacion);
+    List<AccesoVendedor> findByPublicacionId(Integer idPublicacion);
+    boolean existsByPublicacionId(Integer idPublicacion);
 }

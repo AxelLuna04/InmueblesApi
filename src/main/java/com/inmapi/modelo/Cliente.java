@@ -32,6 +32,9 @@ public class Cliente {
 
     @Column(name = "nombreCompleto", length = 100, nullable = false)
     private String nombreCompleto;
+    
+    @Column(name = "telefono", length = 10)
+    private String telefono;
 
     @Column(name = "fechaNacimiento")
     private LocalDate fechaNacimiento;
