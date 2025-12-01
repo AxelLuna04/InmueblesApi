@@ -26,6 +26,44 @@ public class FotoService {
     private static final String PUBLICACION_PATH = "uploads/publicaciones";
     private static final Path ROOT_DIR = Paths.get(System.getProperty("user.dir"));
 
+    private static final Set<String> MIME_PERMITIDOS = Set.of(
+        "image/jpeg", "image/png", "image/webp"
+    );
+    private static final Set<String> EXT_PERMITIDAS = Set.of(
+        "jpg","jpeg","png","webp"
+    );
+    private static final long MAX_BYTES = 10 * 1024 * 1024;
+
+    private void validarImagen(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Foto requerida");
+        }
+        if (file.getSize() > MAX_BYTES) {
+            throw new IllegalArgumentException("La imagen excede el tamaño máximo (10MB).");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !MIME_PERMITIDOS.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("Formato de imagen no permitido. Usa JPG, PNG o WEBP.");
+        }
+        String ext = obtenerExtension(file.getOriginalFilename()).toLowerCase();
+        if (!ext.isBlank() && !EXT_PERMITIDAS.contains(ext)) {
+            throw new IllegalArgumentException("Extensión no permitida. Usa JPG, PNG o WEBP.");
+        }
+        
+        try (var is = file.getInputStream()) {
+            BufferedImage img = ImageIO.read(is);
+            if (img == null) {
+                throw new IllegalArgumentException("El archivo no es una imagen válida.");
+            }
+            
+            if (img.getWidth() > 10000 || img.getHeight() > 10000) {
+                throw new IllegalArgumentException("Dimensiones excesivas.");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("No se pudo validar la imagen.", e);
+        }
+    }
+
     public FotoPerfil guardarFotoPerfil(MultipartFile file) {
         try {
             String rutaRelativa = guardarArchivo(file, PERFIL_PATH);
@@ -60,7 +98,6 @@ public class FotoService {
         try {
             String rutaRelativa = guardarArchivo(file, PUBLICACION_PATH);
 
-            // 2. Crea y guarda la entidad de Publicación
             FotoPublicacion fp = new FotoPublicacion();
             fp.setRuta(rutaRelativa);
             fp.setPublicacion(p);
@@ -74,18 +111,24 @@ public class FotoService {
     }
 
     private String guardarArchivo(MultipartFile file, String relativePath) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Foto requerida");
-        }
+        validarImagen(file);
 
         Path uploadPath = ROOT_DIR.resolve(relativePath);
         Files.createDirectories(uploadPath);
 
-        String ext = obtenerExtension(file.getOriginalFilename());
-        String nombreUnico = UUID.randomUUID().toString() + (ext.isBlank() ? "" : "." + ext);
+        String extOriginal = obtenerExtension(file.getOriginalFilename()).toLowerCase();
+        String ext;
+        String ct = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
+        if (ct.contains("jpeg")) ext = "jpg";
+        else if (ct.contains("png")) ext = "png";
+        else if (ct.contains("webp")) ext = "webp";
+        else ext = extOriginal.isBlank() ? "jpg" : extOriginal;
+
+        String nombreUnico = UUID.randomUUID().toString() + "." + ext;
         Path destino = uploadPath.resolve(nombreUnico);
 
         file.transferTo(destino);
+
         return Paths.get(relativePath, nombreUnico).toString().replace("\\", "/");
     }
 
