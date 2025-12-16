@@ -105,7 +105,6 @@ public class AgendaService {
     }
 
     // ---- helpers para mapear días y respuesta ----
-
     private boolean hayAlMenosUnDia(ConfigurarAgendaRequest r) {
         return Boolean.TRUE.equals(r.getLunes())
                 || Boolean.TRUE.equals(r.getMartes())
@@ -130,7 +129,9 @@ public class AgendaService {
     }
 
     private String invertirDias(String dias) {
-        if (dias == null || dias.length() != 7) return null;
+        if (dias == null || dias.length() != 7) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder(7);
         for (int i = 0; i < 7; i++) {
             char c = dias.charAt(i);
@@ -159,5 +160,43 @@ public class AgendaService {
         res.setDuracionVisita(d.getDuracionVisita());
 
         return res;
+    }
+
+    @Transactional
+    public ConfigurarAgendaResponse guardarAgendaPorId(Integer idVendedor, ConfigurarAgendaRequest req) {
+        Vendedor vendedor = vendedores.findById(idVendedor)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor no encontrado"));
+
+        if (!hayAlMenosUnDia(req)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Debes seleccionar al menos un día disponible");
+        }
+        if (!req.getHorarioAtencionInicio().isBefore(req.getHorarioAtencionFin())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "La hora de inicio debe ser menor a la de fin");
+        }
+        if (req.getDuracionVisita() <= 0) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "La duración de la visita debe ser mayor a 0");
+        }
+
+        Disponibilidad disp = disponibilidades.findByVendedorId(vendedor.getId())
+                .orElseGet(() -> {
+                    Disponibilidad nueva = new Disponibilidad();
+                    nueva.setVendedor(vendedor);
+                    return nueva;
+                });
+
+        String diasDisponibles = diasToString(req);
+        disp.setDiasDisponibles(diasDisponibles);
+        disp.setDiasNoDisponibles(invertirDias(diasDisponibles));
+
+        disp.setHorarioAtencionInicio(req.getHorarioAtencionInicio());
+        disp.setHorarioAtencionFin(req.getHorarioAtencionFin());
+        disp.setDuracionVisita(req.getDuracionVisita());
+
+        disp = disponibilidades.save(disp);
+
+        return mapearAResponse(disp);
     }
 }

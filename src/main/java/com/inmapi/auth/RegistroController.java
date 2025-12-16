@@ -1,8 +1,10 @@
 package com.inmapi.auth;
 
+import com.inmapi.dto.ConfigurarAgendaRequest;
 import com.inmapi.dto.RegistroRequest;
 import com.inmapi.dto.RegistroResponse;
 import com.inmapi.modelo.FotoPerfil;
+import com.inmapi.service.AgendaService;
 import com.inmapi.service.CuentaService;
 import com.inmapi.service.FotoService;
 import jakarta.validation.Valid;
@@ -19,6 +21,7 @@ public class RegistroController {
     private final RegistroService registro;
     private final FotoService fotos;
     private final CuentaService cuenta;
+    private final AgendaService agendaService;
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RegistroResponse> register(
@@ -35,8 +38,7 @@ public class RegistroController {
         String msg = registro.verificar(token);
         return ResponseEntity.ok().body(java.util.Map.of("mensaje", msg));
     }
-    
-    
+
     @GetMapping("/confirm-email-change")
     public ResponseEntity<?> confirmEmailChange(@RequestParam("token") String token) {
         String msg = cuenta.confirmarCambioCorreo(token);
@@ -48,5 +50,13 @@ public class RegistroController {
         registro.reenviarVerificacion(correo);
         return ResponseEntity.ok().body(java.util.Map.of("mensaje", "Si el correo existe y no está verificado, se envió un nuevo enlace."));
     }
-}
 
+    @PostMapping("/{id}/agenda")
+    public ResponseEntity<?> registrarAgendaInicial(
+            @PathVariable("id") Integer idVendedor,
+            @RequestBody @Valid ConfigurarAgendaRequest req
+    ) {
+        var res = agendaService.guardarAgendaPorId(idVendedor, req);
+        return ResponseEntity.ok(res);
+    }
+}
