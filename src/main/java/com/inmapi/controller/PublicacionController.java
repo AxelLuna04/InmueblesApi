@@ -97,8 +97,5 @@ public class PublicacionController {
     ) {
         return ResponseEntity.ok(service.paraTi(page, size));
     }
-    
-    
-
 }
 

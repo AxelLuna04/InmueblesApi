@@ -27,7 +27,5 @@ public class AuthController {
     String refresh = authHeader.substring(7);
     return ResponseEntity.ok(service.refresh(refresh));
   }
-  
-  //Hola Axel
 }
 
