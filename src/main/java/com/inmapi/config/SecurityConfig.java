@@ -30,7 +30,7 @@ public class SecurityConfig {
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/v1/auth/**", "/api/v1/tipos-inmueble/**", "/api/v1/publicaciones/**").permitAll()
+            .requestMatchers("/api/v1/auth/**", "/api/v1/tipos-inmueble/**", "/api/v1/publicaciones/**", "/uploads/publicaciones/**").permitAll()
                 //.requestMatchers("/api/**").permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
