@@ -2,8 +2,10 @@ package com.inmapi.service;
 
 import com.inmapi.dto.*;
 import com.inmapi.modelo.FotoPublicacion;
+import com.inmapi.modelo.Movimiento;
 import com.inmapi.modelo.Publicacion;
 import com.inmapi.repository.FotoPublicacionRepository;
+import com.inmapi.repository.MovimientoRepository;
 import com.inmapi.repository.PublicacionRepository;
 import com.inmapi.spec.PublicacionSpecs;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +30,9 @@ public class AdminPublicacionService {
     private final EmailService email;
     private final EmailTemplates templates;
     private final MediaUrlBuilder urlBuilder;
+    
+    // --- NUEVO: Repositorio para guardar historial ---
+    private final MovimientoRepository movimientoRepository;
 
     private boolean esAdmin() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -116,6 +122,15 @@ public class AdminPublicacionService {
             );
         }
 
+        // --- NUEVO: Registrar Movimiento de APROBACION ---
+        Movimiento mov = new Movimiento();
+        mov.setPublicacion(p);
+        mov.setTipoMovimiento("APROBACION");
+        mov.setFecha(LocalDate.now());
+        mov.setArrendador(null);
+        movimientoRepository.save(mov);
+        // -------------------------------------------------
+
         return new ModeracionResponse(p.getId(), p.getEstado(), "Publicación aprobada");
     }
 
@@ -147,7 +162,15 @@ public class AdminPublicacionService {
             );
         }
 
+        // --- NUEVO: Registrar Movimiento de RECHAZO ---
+        Movimiento mov = new Movimiento();
+        mov.setPublicacion(p);
+        mov.setTipoMovimiento("RECHAZADO");
+        mov.setFecha(LocalDate.now());
+        mov.setArrendador(null);
+        movimientoRepository.save(mov);
+        // ----------------------------------------------
+
         return new ModeracionResponse(p.getId(), p.getEstado(), "Publicación rechazada");
     }
 }
-

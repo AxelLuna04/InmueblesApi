@@ -48,13 +48,11 @@ public class HistorialInmuebleService {
         Publicacion pub = publicaciones.findById(idPublicacion)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
-        // Los ordenamos ASC para agrupar Rentado + Fin_renta en orden temporal
         List<Movimiento> lista = movimientos.findByPublicacionIdOrderByFechaDesc(pub.getId());
         Collections.reverse(lista); // ahora están ASC
 
         List<MovimientoHistorialResponse> agregados = agruparMovimientos(lista);
 
-        // Aplicar filtros sobre la lista ya agregada
         String tipoFiltro = (tipoMovimiento == null || tipoMovimiento.isBlank())
                 ? null
                 : tipoMovimiento.toUpperCase(Locale.ROOT);
@@ -68,7 +66,6 @@ public class HistorialInmuebleService {
                 .collect(Collectors.toList());
     }
 
-    // ========= agrupar RENTADO + FIN_RENTA en un solo registro =========
 
     private List<MovimientoHistorialResponse> agruparMovimientos(List<Movimiento> movimientosOrdenAsc) {
         List<MovimientoHistorialResponse> resultado = new ArrayList<>();
@@ -91,22 +88,18 @@ public class HistorialInmuebleService {
                     if (rentaAbierta != null
                             && mismoCliente(rentaAbierta.getArrendador(), m.getArrendador())) {
 
-                        // Renta completa: inicio = RENTADO, fin = FIN_RENTA
                         resultado.add(crearMovimientoRenta(rentaAbierta, m));
                         rentaAbierta = null;
                     } else {
-                        // Caso raro: fin de renta sin RENTADO asociado -> lo tratamos como movimiento simple
                         resultado.add(crearMovimientoSimple(m));
                     }
                     break;
 
                 default:
-                    // otros movimientos: creación, aprobación, edición, venta, etc.
                     resultado.add(crearMovimientoSimple(m));
             }
         }
 
-        // Si quedó una renta abierta sin FIN_RENTA (renta en curso)
         if (rentaAbierta != null) {
             resultado.add(crearMovimientoRenta(rentaAbierta, null));
         }
@@ -119,7 +112,6 @@ public class HistorialInmuebleService {
         return Objects.equals(c1.getId(), c2.getId());
     }
 
-    // ========= constructores de DTO =========
 
     private MovimientoHistorialResponse crearMovimientoSimple(Movimiento m) {
         MovimientoHistorialResponse res = new MovimientoHistorialResponse();
@@ -169,9 +161,9 @@ public class HistorialInmuebleService {
 
     private MovimientoHistorialResponse crearMovimientoRenta(Movimiento rentado, Movimiento finRenta) {
         MovimientoHistorialResponse res = new MovimientoHistorialResponse();
-        res.setIdMovimiento(rentado.getId()); // o null si no quieres ligar a uno solo
+        res.setIdMovimiento(rentado.getId()); 
 
-        res.setTipoMovimiento("RENTA"); // nombre que verá el front y usará en el combo
+        res.setTipoMovimiento("RENTA"); 
 
         res.setFechaInicio(rentado.getFecha());
         res.setFechaFin(finRenta != null ? finRenta.getFecha() : null);
@@ -181,7 +173,7 @@ public class HistorialInmuebleService {
             res.setNombreCliente(c.getNombreCompleto());
         }
 
-        Double precio = rentado.getPublicacion().getPrecio(); // o el campo que tengan para renta
+        Double precio = rentado.getPublicacion().getPrecio(); 
         res.setPrecio(precio);
 
         String rango = (finRenta != null)
@@ -205,12 +197,10 @@ public class HistorialInmuebleService {
     private String normalizarTipoSimple(String tipoDb) {
         if (tipoDb == null) return "";
         String t = tipoDb.toUpperCase(Locale.ROOT);
-        // aquí puedes mapear nombres que usen en BD a nombres que quieres en el front
         switch (t) {
             case "RENTADO":
             case "FIN_RENTA":
             case "FIN_DE_RENTA":
-                // estos los manejamos aparte como RENTA
                 return "RENTA";
             default:
                 return t;

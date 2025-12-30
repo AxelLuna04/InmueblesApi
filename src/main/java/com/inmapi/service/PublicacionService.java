@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -30,6 +31,9 @@ public class PublicacionService {
     private final CaracteristicaSeleccionadaRepository seleccionadas;
     private final FotoPublicacionRepository fotosRepo;
     private final FotoService fotoService;
+    
+    // --- NUEVO: Repositorio para guardar historial ---
+    private final MovimientoRepository movimientoRepository;
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -106,6 +110,15 @@ public class PublicacionService {
             boolean esPortada = (i == dto.getIndicePortada());
             fotoService.guardarFotoPublicacion(fotos.get(i), p, esPortada);
         }
+
+        // --- NUEVO: Registrar Movimiento de CREACION ---
+        Movimiento mov = new Movimiento();
+        mov.setPublicacion(p);
+        mov.setTipoMovimiento("CREACION");
+        mov.setFecha(LocalDate.now());
+        mov.setArrendador(null); // No hay cliente involucrado
+        movimientoRepository.save(mov);
+        // -----------------------------------------------
 
         return new CrearPublicacionResponse(p.getId(), "PENDIENTE", "Publicación creada y enviada a revisión");
     }
@@ -260,6 +273,15 @@ public class PublicacionService {
 
         publicaciones.save(p);
 
+        // --- NUEVO: Registrar Movimiento de EDICION ---
+        Movimiento mov = new Movimiento();
+        mov.setPublicacion(p);
+        mov.setTipoMovimiento("EDICION");
+        mov.setFecha(LocalDate.now());
+        mov.setArrendador(null);
+        movimientoRepository.save(mov);
+        // ----------------------------------------------
+
         return new CrearPublicacionResponse(p.getId(), p.getEstado(), "Publicación actualizada. Enviada a revisión");
     }
 
@@ -280,4 +302,3 @@ public class PublicacionService {
         return dir;
     }
 }
-

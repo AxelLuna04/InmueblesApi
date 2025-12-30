@@ -12,16 +12,14 @@ import java.time.LocalDate;
 public class MovimientoHistorialResponse {
 
     private Integer idMovimiento;
-    private String tipoMovimiento; // CREACION, APROBACION, RENTA, EDICION, VENTA, etc.
+    private String tipoMovimiento; 
 
-    // Para todos los movimientos:
-    // - eventos simples (creación, edición, etc.): fechaFin = null
-    // - renta: fechaInicio = inicio renta, fechaFin = fin renta
+   
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
-    private String nombreCliente; // solo renta / venta
-    private Double precio;        // solo renta / venta
+    private String nombreCliente; 
+    private Double precio;        
 
     // Texto listo para mostrar
     private String descripcion;
