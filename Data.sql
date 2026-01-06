@@ -34,3 +34,19 @@ VALUES
     (4, 1), (4, 2), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9),
     -- Terreno (ID 5)
     (5, 1), (5, 2), (5, 6), (5, 7);
+
+-- 4. Modificar la tabla Direccion para permitir nulos
+ALTER TABLE Direccion
+ALTER COLUMN line1 NVARCHAR(50) NULL;
+
+ALTER TABLE Direccion
+ALTER COLUMN sublocality NVARCHAR(50) NULL;
+
+ALTER TABLE Direccion
+ALTER COLUMN locality NVARCHAR(50) NULL;
+
+ALTER TABLE Direccion
+ALTER COLUMN admin_area1 NVARCHAR(50) NULL;
+
+-- 5. Insertar Tipo de pago
+INSERT INTO TipoPago (tipoPago) VALUES ('Tarjeta');
