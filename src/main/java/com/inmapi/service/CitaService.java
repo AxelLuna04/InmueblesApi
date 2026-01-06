@@ -29,6 +29,7 @@ public class CitaService {
     private final DiaOcupadoRepository diasOcupados;
     private final AgendaRepository agendas;
     private final ClienteRepository clientes;
+    private final VendedorRepository vendedores;
 
     // ===== helpers de seguridad =====
 
@@ -38,6 +39,18 @@ public class CitaService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         return (String) a.getPrincipal();
+    }
+    
+    private boolean esVendedor() {
+        Authentication a = SecurityContextHolder.getContext().getAuthentication();
+        return a != null && a.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_VENDEDOR"));
+    }
+    
+    private Vendedor vendedorActual() {
+        String correo = emailActual();
+        return vendedores.findByCorreo(correo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor no encontrado"));
     }
 
     private boolean esCliente() {
@@ -226,5 +239,39 @@ public class CitaService {
                 cita.getHoraSeleccionada(),
                 "¡Cita registrada con éxito!"
         );
+    }
+    
+    public List<AgendaVendedorResponse> listarCitasPendientes() {
+        if (!esVendedor()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo vendedores pueden ver su agenda");
+        }
+
+        Vendedor vendedor = vendedorActual();
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        // Buscamos citas desde hoy en adelante
+        List<Agenda> citas = agendas.findByVendedorIdAndFechaSeleccionadaGreaterThanEqualOrderByFechaSeleccionadaAscHoraSeleccionadaAsc(
+                vendedor.getId(), 
+                hoy
+        );
+
+        return citas.stream()
+                // Filtro extra: Si la cita es HOY pero la hora ya pasó, la filtramos.
+                .filter(cita -> {
+                    if (cita.getFechaSeleccionada().isEqual(hoy)) {
+                        return cita.getHoraSeleccionada().isAfter(ahora);
+                    }
+                    return true; // Si es mañana o después, pasa.
+                })
+                .map(cita -> new AgendaVendedorResponse(
+                        cita.getId(),
+                        cita.getFechaSeleccionada(),
+                        cita.getHoraSeleccionada(),
+                        cita.getPublicacion().getTitulo(),
+                        cita.getArrendador().getNombreCompleto(), // "Arrendador" en tu modelo Agenda es el Cliente
+                        cita.getArrendador().getTelefono() // Asumiendo que Cliente tiene telefono
+                ))
+                .collect(Collectors.toList());
     }
 }

@@ -15,6 +15,11 @@ public interface AgendaRepository extends JpaRepository<Agenda, Integer> {
 
     List<Agenda> findByVendedorIdAndFechaSeleccionada(Integer idVendedor, LocalDate fecha);
 
+    List<Agenda> findByVendedorIdAndFechaSeleccionadaGreaterThanEqualOrderByFechaSeleccionadaAscHoraSeleccionadaAsc(
+            Integer idVendedor, 
+            LocalDate fecha
+    );
+    
     boolean existsByVendedorIdAndFechaSeleccionadaAndHoraSeleccionada(
             Integer idVendedor,
             LocalDate fecha,
