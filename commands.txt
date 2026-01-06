@@ -1,0 +1,1 @@
+docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "inmueblesApi!" -C -d Inmuebles < ListingData.sql
