@@ -5,12 +5,14 @@
 package com.inmapi.service;
 
 import com.inmapi.dto.ContactoVendedorResponse;
+import com.inmapi.modelo.AccesoVendedor;
 import com.inmapi.modelo.Cliente;
 import com.inmapi.modelo.Publicacion;
 import com.inmapi.modelo.Vendedor;
 import com.inmapi.repository.AccesoVendedorRepository;
 import com.inmapi.repository.ClienteRepository;
 import com.inmapi.repository.PublicacionRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -73,10 +75,34 @@ public class ContactoVendedorService {
         Vendedor vendedor = pub.getVendedor();
 
         return new ContactoVendedorResponse(
+                vendedor.getId(),
                 vendedor.getNombreCompleto(),
                 vendedor.getCorreo(),
                 vendedor.getTelefono()
         );
+    }
+    
+    public List<ContactoVendedorResponse> listarVendedoresDesbloqueados() {
+        if (!esCliente()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo clientes pueden ver su historial de contactos.");
+        }
+
+        Cliente cliente = clienteActual();
+
+        // Buscamos todos los accesos que ha pagado este cliente
+        List<AccesoVendedor> misAccesos = accesos.findByClienteId(cliente.getId());
+
+        // Transformamos la lista de "Accesos" a una lista de "ContactoVendedorResponse"
+        return misAccesos.stream()
+                .map(acceso -> acceso.getPublicacion().getVendedor()) // Obtenemos el vendedor de cada acceso
+                .distinct() // Evitamos duplicados (si pagaste 2 casas del mismo vendedor)
+                .map(vendedor -> new ContactoVendedorResponse(
+                        vendedor.getId(),
+                        vendedor.getNombreCompleto(),
+                        vendedor.getCorreo(),
+                        vendedor.getTelefono()
+                ))
+                .toList(); // Retornamos la lista
     }
 }
 

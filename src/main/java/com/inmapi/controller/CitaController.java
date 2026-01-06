@@ -12,15 +12,18 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/publicaciones/{idPublicacion}/agenda")
+@RequestMapping("/api/v1") // <--- 1. RUTA BASE GENERAL
 @RequiredArgsConstructor
 public class CitaController {
 
     private final CitaService citaService;
 
-    @GetMapping("/calendario")
+    // Métodos existentes (ajustamos sus rutas individuales)
+    
+    @GetMapping("/publicaciones/{idPublicacion}/agenda/calendario")
     public ResponseEntity<CalendarioAgendaResponse> obtenerCalendario(
             @PathVariable Integer idPublicacion,
             @RequestParam int anio,
@@ -30,22 +33,29 @@ public class CitaController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/horas-disponibles")
+    @GetMapping("/publicaciones/{idPublicacion}/agenda/horas-disponibles")
     public ResponseEntity<HorasDisponiblesResponse> obtenerHorasDisponibles(
             @PathVariable Integer idPublicacion,
             @RequestParam String fecha
     ) {
-        LocalDate f = LocalDate.parse(fecha); // formato YYYY-MM-DD
+        LocalDate f = LocalDate.parse(fecha);
         var res = citaService.obtenerHorasDisponibles(idPublicacion, f);
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping
+    @PostMapping("/publicaciones/{idPublicacion}/agenda")
     public ResponseEntity<AgendarCitaResponse> agendarCita(
             @PathVariable Integer idPublicacion,
             @RequestBody @Valid AgendarCitaRequest request
     ) {
         var res = citaService.agendarCita(idPublicacion, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    // 2. NUEVO ENDPOINT PARA EL VENDEDOR
+    @GetMapping("/agenda/mis-citas")
+    public ResponseEntity<List<AgendaVendedorResponse>> misCitasPendientes() {
+        var res = citaService.listarCitasPendientes();
+        return ResponseEntity.ok(res);
     }
 }
