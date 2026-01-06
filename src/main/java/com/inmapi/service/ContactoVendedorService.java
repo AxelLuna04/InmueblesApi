@@ -75,6 +75,7 @@ public class ContactoVendedorService {
         Vendedor vendedor = pub.getVendedor();
 
         return new ContactoVendedorResponse(
+                vendedor.getId(),
                 vendedor.getNombreCompleto(),
                 vendedor.getCorreo(),
                 vendedor.getTelefono()
@@ -96,6 +97,7 @@ public class ContactoVendedorService {
                 .map(acceso -> acceso.getPublicacion().getVendedor()) // Obtenemos el vendedor de cada acceso
                 .distinct() // Evitamos duplicados (si pagaste 2 casas del mismo vendedor)
                 .map(vendedor -> new ContactoVendedorResponse(
+                        vendedor.getId(),
                         vendedor.getNombreCompleto(),
                         vendedor.getCorreo(),
                         vendedor.getTelefono()

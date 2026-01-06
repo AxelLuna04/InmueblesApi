@@ -11,6 +11,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ContactoVendedorResponse {
 
+    private Integer idVendedor;
     private String nombreVendedor;
     private String correoVendedor;
     private String telefonoVendedor;
