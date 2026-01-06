@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface AccesoVendedorRepository extends JpaRepository<AccesoVendedor, Integer> {
 
     Optional<AccesoVendedor> findByClienteIdAndPublicacionId(Integer idCliente, Integer idPublicacion);
+    List<AccesoVendedor> findByClienteId(Integer idCliente);
     List<AccesoVendedor> findByPublicacionId(Integer idPublicacion);
     boolean existsByPublicacionId(Integer idPublicacion);
 }
