@@ -14,14 +14,12 @@ public class CatalogosService {
 
     private final OcupacionRepository ocupacionRepository;
 
-    // Si tienes aquí lógica de TipoInmueble, déjala tal cual y agrega esto abajo:
-
     public List<OcupacionResponse> obtenerOcupaciones() {
         return ocupacionRepository.findAll()
                 .stream()
                 .map(ocupacion -> new OcupacionResponse(
                         ocupacion.getId(),
-                        ocupacion.getNombre() // Asumiendo que el campo en la entidad se llama 'nombre'
+                        ocupacion.getNombre()
                 ))
                 .collect(Collectors.toList());
     }

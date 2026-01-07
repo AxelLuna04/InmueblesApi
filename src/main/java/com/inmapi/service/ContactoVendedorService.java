@@ -28,7 +28,7 @@ public class ContactoVendedorService {
     private final ClienteRepository clientes;
     private final PublicacionRepository publicaciones;
 
-    // ===== helpers de seguridad (igual estilo que en PagoService) =====
+    
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -50,7 +50,7 @@ public class ContactoVendedorService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
     }
 
-    // ===== lógica principal =====
+    
 
     public ContactoVendedorResponse obtenerContactoVendedor(Integer idPublicacion) {
         if (!esCliente()) {
@@ -62,10 +62,10 @@ public class ContactoVendedorService {
         Publicacion pub = publicaciones.findById(idPublicacion)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
-        // ¿Ya pagó este cliente el acceso a esta publicación?
+        
         var accesoOpt = accesos.findByClienteIdAndPublicacionId(cliente.getId(), pub.getId());
         if (accesoOpt.isEmpty()) {
-            // Aquí puedes usar 403 o 402. Yo uso 403 para que sea más común.
+            
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Debes realizar el pago para ver los datos de contacto del vendedor"
@@ -89,20 +89,20 @@ public class ContactoVendedorService {
 
         Cliente cliente = clienteActual();
 
-        // Buscamos todos los accesos que ha pagado este cliente
+        
         List<AccesoVendedor> misAccesos = accesos.findByClienteId(cliente.getId());
 
-        // Transformamos la lista de "Accesos" a una lista de "ContactoVendedorResponse"
+        
         return misAccesos.stream()
-                .map(acceso -> acceso.getPublicacion().getVendedor()) // Obtenemos el vendedor de cada acceso
-                .distinct() // Evitamos duplicados (si pagaste 2 casas del mismo vendedor)
+                .map(acceso -> acceso.getPublicacion().getVendedor())
+                .distinct()
                 .map(vendedor -> new ContactoVendedorResponse(
                         vendedor.getId(),
                         vendedor.getNombreCompleto(),
                         vendedor.getCorreo(),
                         vendedor.getTelefono()
                 ))
-                .toList(); // Retornamos la lista
+                .toList();
     }
 }
 

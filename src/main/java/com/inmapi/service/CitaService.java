@@ -31,7 +31,6 @@ public class CitaService {
     private final ClienteRepository clientes;
     private final VendedorRepository vendedores;
 
-    // ===== helpers de seguridad =====
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -65,7 +64,6 @@ public class CitaService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
     }
 
-    // ===== helpers de dominio =====
 
     private Publicacion obtenerPublicacion(Integer idPublicacion) {
         return publicaciones.findById(idPublicacion)
@@ -79,9 +77,9 @@ public class CitaService {
     }
 
     private boolean diaEnDisponibilidad(Disponibilidad disp, LocalDate fecha) {
-        String dias = disp.getDiasDisponibles(); // ej. "1111100"
+        String dias = disp.getDiasDisponibles();
         if (dias == null || dias.length() != 7) return false;
-        int index = fecha.getDayOfWeek().getValue() - 1; // Lunes=1 => 0
+        int index = fecha.getDayOfWeek().getValue() - 1;
         return dias.charAt(index) == '1';
     }
 
@@ -114,20 +112,19 @@ public class CitaService {
     private List<LocalTime> calcularHorasDisponibles(Vendedor vendedor, LocalDate fecha) {
         Disponibilidad disp = obtenerDisponibilidad(vendedor);
 
-        // validar día disponible
         if (!diaEnDisponibilidad(disp, fecha)) {
-            return List.of(); // para ese día no atiende
+            return List.of(); 
         }
 
-        // si el día está marcado como lleno, no hay horas
+       
         if (diasOcupados.existsByVendedorIdAndFecha(vendedor.getId(), fecha)) {
             return List.of();
         }
 
-        // generar todos los slots del día
+        
         List<LocalTime> slots = generarSlots(disp);
 
-        // quitar las horas que ya están ocupadas en Agenda
+        
         List<Agenda> citas = agendas.findByVendedorIdAndFechaSeleccionada(vendedor.getId(), fecha);
         Set<LocalTime> horasOcupadas = citas.stream()
                 .map(Agenda::getHoraSeleccionada)
@@ -138,14 +135,14 @@ public class CitaService {
                 .collect(Collectors.toList());
     }
 
-    // ===== endpoints lógicos =====
+    
 
     public CalendarioAgendaResponse obtenerCalendario(Integer idPublicacion, int anio, int mes) {
         Publicacion pub = obtenerPublicacion(idPublicacion);
         Vendedor vendedor = pub.getVendedor();
         Disponibilidad disp = obtenerDisponibilidad(vendedor);
 
-        // rango de fechas del mes
+        
         LocalDate primerDia = LocalDate.of(anio, mes, 1);
         LocalDate ultimoDia = primerDia.withDayOfMonth(primerDia.lengthOfMonth());
 
@@ -180,7 +177,7 @@ public class CitaService {
 
         List<LocalTime> horas = calcularHorasDisponibles(vendedor, fecha);
 
-        // si no hay horas y el día ni siquiera está en disponibilidad, puedes lanzar error o dejar lista vacía
+        
         HorasDisponiblesResponse res = new HorasDisponiblesResponse();
         res.setFecha(fecha);
         res.setHoras(horas);
@@ -202,7 +199,7 @@ public class CitaService {
         Publicacion pub = obtenerPublicacion(idPublicacion);
         Vendedor vendedor = pub.getVendedor();
 
-        // validar que la hora seleccionada sigue disponible
+        
         List<LocalTime> horasDisponibles = calcularHorasDisponibles(vendedor, req.getFecha());
         if (horasDisponibles.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
@@ -214,7 +211,7 @@ public class CitaService {
                     "La hora seleccionada ya no está disponible");
         }
 
-        // registrar cita
+        
         Agenda cita = new Agenda();
         cita.setVendedor(vendedor);
         cita.setArrendador(cliente);
@@ -224,7 +221,7 @@ public class CitaService {
 
         cita = agendas.save(cita);
 
-        // después de guardar, revisar si el día quedó lleno
+        
         List<LocalTime> restantes = calcularHorasDisponibles(vendedor, req.getFecha());
         if (restantes.isEmpty() && !diasOcupados.existsByVendedorIdAndFecha(vendedor.getId(), req.getFecha())) {
             DiaOcupado d = new DiaOcupado();
@@ -250,27 +247,27 @@ public class CitaService {
         LocalDate hoy = LocalDate.now();
         LocalTime ahora = LocalTime.now();
 
-        // Buscamos citas desde hoy en adelante
+        
         List<Agenda> citas = agendas.findByVendedorIdAndFechaSeleccionadaGreaterThanEqualOrderByFechaSeleccionadaAscHoraSeleccionadaAsc(
                 vendedor.getId(), 
                 hoy
         );
 
         return citas.stream()
-                // Filtro extra: Si la cita es HOY pero la hora ya pasó, la filtramos.
+                
                 .filter(cita -> {
                     if (cita.getFechaSeleccionada().isEqual(hoy)) {
                         return cita.getHoraSeleccionada().isAfter(ahora);
                     }
-                    return true; // Si es mañana o después, pasa.
+                    return true;
                 })
                 .map(cita -> new AgendaVendedorResponse(
                         cita.getId(),
                         cita.getFechaSeleccionada(),
                         cita.getHoraSeleccionada(),
                         cita.getPublicacion().getTitulo(),
-                        cita.getArrendador().getNombreCompleto(), // "Arrendador" en tu modelo Agenda es el Cliente
-                        cita.getArrendador().getTelefono() // Asumiendo que Cliente tiene telefono
+                        cita.getArrendador().getNombreCompleto(),
+                        cita.getArrendador().getTelefono()
                 ))
                 .collect(Collectors.toList());
     }

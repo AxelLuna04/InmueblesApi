@@ -11,12 +11,12 @@ public class VerificationLinkBuilder {
 
   public String buildVerifyUrl(String token) {
     String base = publicApiUrl.endsWith("/") ? publicApiUrl.substring(0, publicApiUrl.length()-1) : publicApiUrl;
-    return base + "api/v1/auth/verify?token=" + token;
+    return base + "/api/v1/auth/verify?token=" + token;
   }
   
   public String buildConfirmEmailChangeUrl(String token) {
     String base = publicApiUrl.endsWith("/") ? publicApiUrl.substring(0, publicApiUrl.length()-1) : publicApiUrl;
-    return base + "api/v1/auth/confirm-email-change?token=" + token; // JSON por ahora (como tu verify)
+    return base + "/api/v1/auth/confirm-email-change?token=" + token;
   }
 
 }

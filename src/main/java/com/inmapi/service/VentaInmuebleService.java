@@ -33,7 +33,7 @@ public class VentaInmuebleService {
     private final MovimientoRepository movimientos;
     private final ContratoRepository contratos;
 
-    // ========= helpers de seguridad =========
+    
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
         if (a == null || a.getPrincipal() == null) {
@@ -66,7 +66,7 @@ public class VentaInmuebleService {
         return pub;
     }
 
-    // ========= listar interesados =========
+
     public List<InteresadoResponse> listarInteresados(Integer idPublicacion) {
         if (!esVendedor()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo vendedores pueden ver interesados");
@@ -76,7 +76,7 @@ public class VentaInmuebleService {
 
         List<AccesoVendedor> listaAccesos = accesos.findByPublicacionId(pub.getId());
 
-        // evitar duplicados por cliente
+        
         Map<Integer, Cliente> unicos = new LinkedHashMap<>();
         for (AccesoVendedor av : listaAccesos) {
             Cliente c = av.getCliente();
@@ -95,7 +95,7 @@ public class VentaInmuebleService {
                 .collect(Collectors.toList());
     }
 
-    // ========= vender inmueble =========
+    
     @Transactional
     public VenderInmuebleResponse venderInmueble(
             Integer idPublicacion,
@@ -112,44 +112,40 @@ public class VentaInmuebleService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta publicación ya está marcada como vendida");
         }
 
-        // PRE: debe haber al menos un cliente con acceso pagado
+        
         if (!accesos.existsByPublicacionId(pub.getId())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "No hay interesados registrados para esta publicación");
         }
 
-        // 1) validar comprador
+        
         Cliente comprador = clientes.findById(req.getIdClienteComprador())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente comprador no encontrado"));
 
-        // 2) validar que el comprador realmente pagó acceso a esta publicación
+        
         AccesoVendedor accesoComprador = accesos.findByClienteIdAndPublicacionId(comprador.getId(), pub.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
                 "El cliente seleccionado no ha pagado acceso a este inmueble"));
 
-        // 3) marcar publicación como VENDIDA (ya no se muestra en listados)
+        
         pub.setEstado("VENDIDA");
         publicaciones.save(pub);
 
-        // 4) registrar movimiento de VENTA en el historial
+        
         Movimiento mov = new Movimiento();
         mov.setPublicacion(pub);
         mov.setTipoMovimiento("VENTA");
         mov.setFecha(req.getFechaVenta());
-        mov.setArrendador(comprador); // reusamos este campo para el comprador
+        mov.setArrendador(comprador); 
         movimientos.save(mov);
 
-        // 5) registrar contrato / documento de venta (opcional)
         Integer idContrato = null;
         if (documentoVenta != null && !documentoVenta.isEmpty()) {
             Contrato contrato = new Contrato();
             contrato.setPublicacion(pub);
             contrato.setCliente(comprador);
             contrato.setFechaCarga(req.getFechaVenta());
-            contrato.setTipoPago(accesoComprador.getTipoPago()); // usamos el tipo de pago del acceso
-
-            // Aquí faltaría la lógica real para guardar el archivo en disco / S3, etc.
-            // De momento guardamos el nombre como ruta relativa de ejemplo.
+            contrato.setTipoPago(accesoComprador.getTipoPago()); 
             contrato.setRutaDocumento(documentoVenta.getOriginalFilename());
 
             contratos.save(contrato);

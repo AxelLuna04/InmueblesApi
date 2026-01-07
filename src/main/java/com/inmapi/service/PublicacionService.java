@@ -111,14 +111,14 @@ public class PublicacionService {
             fotoService.guardarFotoPublicacion(fotos.get(i), p, esPortada);
         }
 
-        // --- NUEVO: Registrar Movimiento de CREACION ---
+        
         Movimiento mov = new Movimiento();
         mov.setPublicacion(p);
         mov.setTipoMovimiento("CREACION");
         mov.setFecha(LocalDate.now());
-        mov.setArrendador(null); // No hay cliente involucrado
+        mov.setArrendador(null); 
         movimientoRepository.save(mov);
-        // -----------------------------------------------
+        
 
         return new CrearPublicacionResponse(p.getId(), "PENDIENTE", "Publicación creada y enviada a revisión");
     }
@@ -273,14 +273,14 @@ public class PublicacionService {
 
         publicaciones.save(p);
 
-        // --- NUEVO: Registrar Movimiento de EDICION ---
+        
         Movimiento mov = new Movimiento();
         mov.setPublicacion(p);
         mov.setTipoMovimiento("EDICION");
         mov.setFecha(LocalDate.now());
         mov.setArrendador(null);
         movimientoRepository.save(mov);
-        // ----------------------------------------------
+        
 
         return new CrearPublicacionResponse(p.getId(), p.getEstado(), "Publicación actualizada. Enviada a revisión");
     }

@@ -30,7 +30,6 @@ public class PagoService {
     private final ClienteRepository clientes;
     private final PublicacionRepository publicaciones;
 
-    // ===== helpers de seguridad =====
 
     private String emailActual() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +51,6 @@ public class PagoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
     }
 
-    // ===== listar tipos de pago =====
 
     public List<TipoPagoResponse> obtenerTiposPago() {
         return tiposPago.findAll().stream()
@@ -60,7 +58,6 @@ public class PagoService {
                 .toList();
     }
 
-    // ===== realizar pago y registrar acceso =====
 
     @Transactional
     public RealizarPagoResponse pagarAcceso(Integer idPublicacion, RealizarPagoRequest req) {
@@ -77,32 +74,31 @@ public class PagoService {
         Publicacion pub = publicaciones.findById(idPublicacion)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
-        // 1) ¿Ya tiene acceso?
         var accesoExistenteOpt = accesos.findByClienteIdAndPublicacionId(cliente.getId(), pub.getId());
         if (accesoExistenteOpt.isPresent()) {
             AccesoVendedor acceso = accesoExistenteOpt.get();
             String nombreTipo = acceso.getTipoPago() != null ? acceso.getTipoPago().getTipoPago() : null;
 
             return new RealizarPagoResponse(
-                    true,                         // exito
-                    true,                         // yaTeniaAcceso
-                    acceso.getId(),               // idAcceso
+                    true,                         
+                    true,                        
+                    acceso.getId(),               
                     nombreTipo,
                     acceso.getMonto(),
                     "Ya contabas con acceso a los datos del vendedor para esta publicación."
             );
         }
 
-        // 2) Validar tipo de pago
+        
         TipoPago tipoPago = tiposPago.findById(req.getIdTipoPago())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Tipo de pago inválido"));
 
-        // 3) Simular la pasarela de pago
+        
         if (!simularPagoExterno(tipoPago, req)) {
             throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, "Pago rechazado por la pasarela simulada");
         }
 
-        // 4) Registrar el acceso
+        
         AccesoVendedor acceso = new AccesoVendedor();
         acceso.setCliente(cliente);
         acceso.setPublicacion(pub);
@@ -114,8 +110,8 @@ public class PagoService {
         accesos.save(acceso);
 
         return new RealizarPagoResponse(
-                true,                       // exito
-                false,                      // yaTeniaAcceso
+                true,                       
+                false,                      
                 acceso.getId(),
                 tipoPago.getTipoPago(),
                 acceso.getMonto(),
@@ -123,14 +119,12 @@ public class PagoService {
         );
     }
 
-    // ===== simulación muy sencilla de pasarela =====
+   
     private boolean simularPagoExterno(TipoPago tipo, RealizarPagoRequest req) {
-        // Aquí podrías hacer validaciones más específicas según tipo de pago.
-        // Para la simulación, mientras tenga datosSimulados y monto>0 lo consideramos aprobado.
+        
         if (req.getDatosSimulados() == null || req.getDatosSimulados().isBlank()) {
             return false;
         }
-        // Podrías usar tipo.getTipoPago() para decidir otras reglas si quieres.
         return true;
     }
 }

@@ -43,11 +43,10 @@ public class HistorialInmuebleService {
         Publicacion pub = publicaciones.findById(idPublicacion)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
-        // 1. Obtener lista cruda de la BD
+    
         List<Movimiento> lista = movimientos.findByPublicacionIdOrderByFechaDesc(pub.getId());
 
-        // 2. Filtros básicos (Opcional: Si quieres que la BD filtre, podrías cambiar el query, 
-        // pero filtrar aquí en memoria está bien para listas cortas).
+        
         String tipoFiltro = (tipoMovimiento == null || tipoMovimiento.isBlank())
                 ? null
                 : tipoMovimiento.toUpperCase(Locale.ROOT);
@@ -56,29 +55,27 @@ public class HistorialInmuebleService {
                 .filter(m -> fechaInicio == null || !m.getFecha().isBefore(fechaInicio))
                 .filter(m -> fechaFin == null || !m.getFecha().isAfter(fechaFin))
                 .filter(m -> tipoFiltro == null || m.getTipoMovimiento().equalsIgnoreCase(tipoFiltro))
-                .map(this::mapearADto) // Conversión directa 1 a 1
+                .map(this::mapearADto)
                 .collect(Collectors.toList());
     }
 
-    // Método simple para convertir de Entidad -> DTO
+
     private MovimientoHistorialResponse mapearADto(Movimiento m) {
         MovimientoHistorialResponse res = new MovimientoHistorialResponse();
         res.setIdMovimiento(m.getId());
-        res.setTipoMovimiento(m.getTipoMovimiento()); // Tal cual sale de la BD
-        res.setFecha(m.getFecha()); // La fecha exacta del evento
+        res.setTipoMovimiento(m.getTipoMovimiento());
+        res.setFecha(m.getFecha());
 
         Cliente c = m.getArrendador();
         if (c != null) {
             res.setNombreCliente(c.getNombreCompleto());
         }
 
-        // Precio solo relevante si es VENTA o RENTA, lo tomamos de la publicación actual
-        // (Nota: Esto muestra el precio ACTUAL, no el histórico, a menos que guardes precio en Movimiento)
+
         if (esTipoConPrecio(m.getTipoMovimiento())) {
             res.setPrecio(m.getPublicacion().getPrecio());
         }
 
-        // Generar una descripción sencilla
         res.setDescripcion(generarDescripcion(m));
 
         return res;

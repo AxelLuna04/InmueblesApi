@@ -31,7 +31,7 @@ public class AdminPublicacionService {
     private final EmailTemplates templates;
     private final MediaUrlBuilder urlBuilder;
     
-    // --- NUEVO: Repositorio para guardar historial ---
+    
     private final MovimientoRepository movimientoRepository;
 
     private boolean esAdmin() {
@@ -121,7 +121,6 @@ public class AdminPublicacionService {
             );
         }
 
-        // --- NUEVO: Registrar Movimiento de APROBACION ---
         Movimiento mov = new Movimiento();
         mov.setPublicacion(p);
         mov.setTipoMovimiento("APROBACION");
@@ -161,14 +160,12 @@ public class AdminPublicacionService {
             );
         }
 
-        // --- NUEVO: Registrar Movimiento de RECHAZO ---
         Movimiento mov = new Movimiento();
         mov.setPublicacion(p);
         mov.setTipoMovimiento("RECHAZADO");
         mov.setFecha(LocalDate.now());
         mov.setArrendador(null);
         movimientoRepository.save(mov);
-        // ----------------------------------------------
 
         return new ModeracionResponse(p.getId(), p.getEstado(), "Publicación rechazada");
     }

@@ -64,7 +64,6 @@ public class AgendaService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo vendedores pueden configurar su agenda");
         }
 
-        // Validaciones de negocio
         if (!hayAlMenosUnDia(req)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Debes seleccionar al menos un día disponible");
@@ -82,7 +81,6 @@ public class AgendaService {
 
         Vendedor vendedor = vendedorActual();
 
-        // Buscar si ya tiene una disponibilidad, si no crear una nueva
         Disponibilidad disp = disponibilidades.findByVendedorId(vendedor.getId())
                 .orElseGet(() -> {
                     Disponibilidad nueva = new Disponibilidad();
@@ -92,7 +90,6 @@ public class AgendaService {
 
         String diasDisponibles = diasToString(req);
         disp.setDiasDisponibles(diasDisponibles);
-        // si quieres usar diasNoDisponibles, puedes guardarlo como el complemento
         disp.setDiasNoDisponibles(invertirDias(diasDisponibles));
 
         disp.setHorarioAtencionInicio(req.getHorarioAtencionInicio());
@@ -104,7 +101,6 @@ public class AgendaService {
         return mapearAResponse(disp);
     }
 
-    // ---- helpers para mapear días y respuesta ----
     private boolean hayAlMenosUnDia(ConfigurarAgendaRequest r) {
         return Boolean.TRUE.equals(r.getLunes())
                 || Boolean.TRUE.equals(r.getMartes())
@@ -115,7 +111,6 @@ public class AgendaService {
                 || Boolean.TRUE.equals(r.getDomingo());
     }
 
-    // convierte booleans a "1111100"
     private String diasToString(ConfigurarAgendaRequest r) {
         StringBuilder sb = new StringBuilder(7);
         sb.append(Boolean.TRUE.equals(r.getLunes()) ? '1' : '0');
