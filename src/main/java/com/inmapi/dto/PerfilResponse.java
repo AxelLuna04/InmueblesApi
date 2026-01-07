@@ -1,5 +1,7 @@
 package com.inmapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,6 +14,8 @@ public class PerfilResponse {
   private Double presupuesto;
   private String ubicacionInteres;
   private String numeroMiembrosFamilia;
+  @JsonFormat(pattern = "yyyy-MM-DD")
+  private LocalDate fechaNacimiento;
   private Integer idOcupacion;
   private String telefono;
   private Integer idFotoPerfil;

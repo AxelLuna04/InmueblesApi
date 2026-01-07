@@ -41,19 +41,19 @@ public class PerfilService {
     }
 
     private PerfilResponse toResponse(Cliente c) {
-
         return new PerfilResponse(
                 "CLIENTE",
                 c.getId(),
                 c.getCorreo(),
                 c.getNombreCompleto(),
-                c.getPresupuesto(),
-                c.getUbicacionInteres(),
-                c.getNumeroMiembrosFamilia(),
-                c.getOcupacion() == null ? null : c.getOcupacion().getId(),
-                null,
-                c.getFotoPerfil() == null ? null : c.getFotoPerfil().getId(),
-                c.getFotoPerfil() == null ? null : urlBuilder.construirUrl(c.getFotoPerfil().getRuta())
+                c.getPresupuesto(), // 5. Presupuesto (Double)
+                c.getUbicacionInteres(), // 6. Ubicación
+                c.getNumeroMiembrosFamilia(), // 7. Miembros familia
+                c.getFechaNacimiento(), // 8. Fecha Nacimiento (LocalDate)
+                c.getOcupacion() == null ? null : c.getOcupacion().getId(), // 9. idOcupacion
+                null, // 10. telefono (el cliente no parece tenerlo en tu código)
+                c.getFotoPerfil() == null ? null : c.getFotoPerfil().getId(), // 11. idFoto
+                c.getFotoPerfil() == null ? null : urlBuilder.construirUrl(c.getFotoPerfil().getRuta()) // 12. ruta
         );
     }
 
@@ -63,13 +63,14 @@ public class PerfilService {
                 v.getId(),
                 v.getCorreo(),
                 v.getNombreCompleto(),
-                null,
-                null,
-                null,
-                null,
-                v.getTelefono(),
-                v.getFotoPerfil() == null ? null : v.getFotoPerfil().getId(),
-                v.getFotoPerfil() == null ? null : urlBuilder.construirUrl(v.getFotoPerfil().getRuta())
+                null, // 5. presupuesto
+                null, // 6. ubicacion
+                null, // 7. miembros familia
+                null, // 8. fecha nacimiento
+                null, // 9. idOcupacion
+                v.getTelefono(), // 10. telefono
+                v.getFotoPerfil() == null ? null : v.getFotoPerfil().getId(), // 11. idFoto
+                v.getFotoPerfil() == null ? null : urlBuilder.construirUrl(v.getFotoPerfil().getRuta()) // 12. ruta
         );
     }
 
@@ -165,4 +166,3 @@ public class PerfilService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Rol no permitido");
     }
 }
-
