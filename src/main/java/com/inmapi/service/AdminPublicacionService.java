@@ -47,8 +47,7 @@ public class AdminPublicacionService {
         var sort = Sort.by(Sort.Direction.DESC, "creadoEn");
         var pageable = PageRequest.of(Math.max(0, page), Math.min(size, 50), sort);
 
-        var spec = Specification.where(PublicacionSpecs.porEstado(
-                f.getEstado() == null ? "PENDIENTE" : f.getEstado()))
+        var spec = Specification.where(f.getEstado() != null ? PublicacionSpecs.porEstado(f.getEstado()) : null)
                 .and(PublicacionSpecs.tipo(f.getTipo()))
                 .and(PublicacionSpecs.texto(f.getQ()));
 
