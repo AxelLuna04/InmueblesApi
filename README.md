@@ -41,3 +41,7 @@ docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "i
 ### 5. Arrancar la API
 
 Ya puedes arrancar la aplicación de Spring Boot. Flyway se encargará de crear todas las tablas automáticamente (V1, V2, V3, etc.).
+
+### 6. Insertar datos
+
+Una vez creadas las tablas, es necesario ejecutar este comando para insertar los datos: docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "inmueblesApi!" -C -d Inmuebles < Data.sql
