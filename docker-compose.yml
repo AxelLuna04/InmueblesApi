@@ -5,7 +5,7 @@ services:
     container_name: sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=inmueblesApi!
+      - MSSQL_SA_PASSWORD=${DB_SA_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1450:1433"
