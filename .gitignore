@@ -21,3 +21,5 @@ mvnw.cmd
 
 # Cloudflared
 cloudflared.exe
+# Variables de entorno locales (contraseñas). Nunca subir este archivo.
+.env

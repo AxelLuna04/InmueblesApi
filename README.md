@@ -1,47 +1,133 @@
-# API de Inmuebles
+# 🏠 Inmuebles a tu Alcance — API
 
-Este es el backend para la aplicación de Inmuebles, desarrollado con Spring Boot, Spring Security y Flyway.
+API REST para una plataforma de compra, venta y renta de inmuebles. Los vendedores publican sus propiedades, los clientes las buscan, agendan visitas y contactan al vendedor, y un administrador modera las publicaciones antes de que aparezcan en el catálogo.
 
-## Configuración inicial para desarrollo
+Este repositorio es el **backend**. El cliente web está en [inmueblesFrontend](https://github.com/AxelLuna04/inmueblesFrontend).
 
-Sigue estos pasos **una sola vez** para configurar tu entorno de desarrollo local.
+## ✨ Funcionalidades
+
+- **Registro e inicio de sesión** con JWT (token de acceso + token de renovación) y contraseñas cifradas con BCrypt.
+- **Verificación de correo** y cambio de correo con enlace enviado por email.
+- **Tres roles:** cliente, vendedor (lister) y administrador.
+- **Publicaciones de inmuebles** con fotos, tipo de inmueble, características y tipo de operación (venta o renta).
+- **Moderación:** el administrador aprueba o rechaza publicaciones e indica el motivo.
+- **Agenda de visitas:** el vendedor define sus horarios y el cliente agenda citas en las horas disponibles.
+- **Pago de acceso** para desbloquear el contacto del vendedor.
+- **Historial** de cada inmueble y registro de ventas.
+- **Feed "Para ti"** con publicaciones recomendadas.
+
+## 🧰 Tecnologías
+
+| Área | Herramientas |
+|---|---|
+| Lenguaje y framework | Java 23, Spring Boot 3.3 |
+| Seguridad | Spring Security, JWT, BCrypt |
+| Base de datos | SQL Server (en Docker), Spring Data JPA |
+| Migraciones | Flyway (`src/main/resources/db/migration`) |
+| Correo | Spring Mail con Gmail SMTP |
+| Pruebas | JUnit 5 y Mockito (21 clases, más de 100 pruebas de servicios) |
+
+## 🗂️ Estructura
+
+```
+src/main/java/com/inmapi
+├── auth/         # Registro, login y verificación de correo
+├── config/       # Seguridad, CORS y manejo de errores
+├── controller/   # Endpoints REST
+├── dto/          # Objetos de entrada y salida
+├── modelo/       # Entidades JPA
+├── repository/   # Acceso a datos
+├── security/     # Filtro y servicio de JWT
+├── service/      # Lógica de negocio
+└── spec/         # Filtros de búsqueda dinámicos
+```
+
+## ⚙️ Cómo correrlo en local
 
 ### Prerrequisitos
 
-* Git
-* Java JDK 23
-* Maven
-* Docker Desktop (corriendo)
+- Java JDK 23
+- Maven
+- Docker Desktop (corriendo)
 
----
+### 1. Clonar el repositorio
 
-### 1. Clonar el Repositorio
-
+```bash
 git clone https://github.com/AxelLuna04/InmueblesApi.git
 cd InmueblesApi
+```
 
-### 2. Iniciar el Servidor de Base de Datos
+### 2. Configurar las variables de entorno
 
-Esto levantará un contenedor de SQL Server Express en Docker.
+Las contraseñas y claves **no están en el código**. Copia el archivo de ejemplo y llena los valores:
 
+```bash
+cp .env.example .env
+```
+
+| Variable | Para qué sirve |
+|---|---|
+| `DB_SA_PASSWORD` | Contraseña del usuario `SA` del contenedor de SQL Server |
+| `DB_PASSWORD` | Contraseña del usuario `app_inmuebles` que usa la API |
+| `JWT_SECRET` | Clave para firmar los tokens (genera una con `openssl rand -hex 32`) |
+| `MAIL_PASSWORD` | [Contraseña de aplicación de Gmail](https://myaccount.google.com/apppasswords) para enviar correos |
+
+El archivo `.env` está en `.gitignore`, así que nunca se sube a GitHub.
+
+### 3. Levantar SQL Server
+
+```bash
 docker-compose up -d
+```
 
-### 3. Crear la Base de Datos
+Docker Compose lee `DB_SA_PASSWORD` del archivo `.env`.
 
-Crea la base de datos Inmuebles (aún vacía) usando el usuario SA del contenedor.
+### 4. Crear la base de datos y el usuario de la API
 
-docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "inmueblesApi!" -C -Q "CREATE DATABASE Inmuebles;"
+Reemplaza `TU_SA_PASSWORD` y `TU_DB_PASSWORD` por los valores que pusiste en `.env`:
 
-### 4. Crear el Usuario de la App
+```bash
+docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "TU_SA_PASSWORD" -C -Q "CREATE DATABASE Inmuebles;"
 
-Crea el usuario app_inmuebles que usa la API para conectarse y le da permisos de dueño sobre la BD.
-
-docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "inmueblesApi!" -C -Q "CREATE LOGIN app_inmuebles WITH PASSWORD = 'InmueblesApi123'; USE Inmuebles; CREATE USER app_inmuebles FOR LOGIN app_inmuebles; ALTER ROLE db_owner ADD MEMBER app_inmuebles;"
+docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "TU_SA_PASSWORD" -C -Q "CREATE LOGIN app_inmuebles WITH PASSWORD = 'TU_DB_PASSWORD'; USE Inmuebles; CREATE USER app_inmuebles FOR LOGIN app_inmuebles; ALTER ROLE db_owner ADD MEMBER app_inmuebles;"
+```
 
 ### 5. Arrancar la API
 
-Ya puedes arrancar la aplicación de Spring Boot. Flyway se encargará de crear todas las tablas automáticamente (V1, V2, V3, etc.).
+```bash
+mvn spring-boot:run
+```
 
-### 6. Insertar datos
+Flyway crea todas las tablas automáticamente. La API queda en `http://localhost:8080` (puedes probar `GET /api/health`).
 
-Una vez creadas las tablas, es necesario ejecutar este comando para insertar los datos: docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "inmueblesApi!" -C -d Inmuebles < Data.sql
+### 6. Insertar los datos iniciales
+
+Con las tablas ya creadas, carga los catálogos (tipos de inmueble, características, etc.):
+
+```bash
+docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "TU_SA_PASSWORD" -C -d Inmuebles < Data.sql
+```
+
+## 🧪 Pruebas
+
+```bash
+mvn test
+```
+
+## 🔌 Endpoints principales
+
+| Ruta base | Descripción |
+|---|---|
+| `/api/v1/auth` | Registro, login, renovación de token y verificación de correo |
+| `/api/v1/me` | Perfil del usuario, foto, cambio de correo y contraseña |
+| `/api/v1/publicaciones` | Catálogo, detalle, agenda y contacto del vendedor |
+| `/api/v1/mis-publicaciones` | Publicaciones del vendedor: crear, editar, marcar como vendida |
+| `/api/v1/agenda` | Citas del usuario |
+| `/api/v1/admin/publicaciones` | Moderación (solo administradores) |
+| `/api/v1/tipos-inmueble`, `/api/v1/tipos-pago` | Catálogos |
+
+<!--
+## 👤 Mi participación
+Este fue un proyecto en equipo. Describe aquí qué partes desarrollaste tú,
+por ejemplo: "Desarrollé la autenticación con JWT y el módulo de agenda de citas."
+-->
